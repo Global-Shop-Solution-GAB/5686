@@ -1,0 +1,49 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'RDF
+'30-Nov-2018
+'Hook 17380
+
+V.Local.sError.Declare(String)
+V.Local.sRet.Declare(String)
+V.Local.sSQL.Declare(String)
+V.Local.sTitles.Declare(String)
+V.Local.sWidths.Declare(String)
+V.Local.sPart.Declare(String)
+V.Local.sRev.Declare(String)
+V.Local.sPartRev.Declare(String)
+v.Local.sGSSPart.Declare(string)
+
+'Override GSQL browsers with GAB browser.  GAB browser is customer specific.
+V.Local.scc.Declare(String)
+F.ODBC.Connection!con.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+F.Intrinsic.String.Split("PartNumber*!*Bin*!*Inactive*!*Description*!*Extra Description*!*Qty Onhand*!*Qty On PO*!*Qty on WO*!*Inventory UM*!*Code Source","*!*",V.Local.sTitles)
+F.Intrinsic.String.Split("2000*!*600*!*500*!*2500*!*4500*!*600*!*600*!*600*!*400*!*300","*!*",V.Local.sWidths)
+F.Intrinsic.UI.SetBrowserHotTypeAhead(True)
+F.Intrinsic.String.Concat("SELECT PART,  BIN, FLAG_INACTIVE, DESCRIPTION, (SELECT INV_EXTRA_TEXT.TEXT FROM INV_EXTRA_TEXT WHERE INV_EXTRA_TEXT.PART=V_INVENTORY_ALL.PART) AS 'EXTRA_TEXT', QTY_ONHAND, QTY_ONORDER_PO, QTY_ONORDER_WO, UM_INVENTORY, rtrim(CODE_SOURCE) FROM V_INVENTORY_ALL","",V.Local.sSQL)
+F.Intrinsic.UI.Browser("Select a Inventory Part","con",V.Local.sSQL,V.Local.sTitles,V.Local.sWidths,15000,10000,V.Local.sRet)
+F.Intrinsic.String.Split(V.Local.sRet,"*!*",V.Local.sRet)
+F.Intrinsic.Control.If(V.Local.sRet,=,"***CANCEL***")
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.sret.Trim,<>,"")
+		V.Passed.009001.Set(V.Local.sRet(0))
+		V.Passed.009002.Set("")
+	f.Intrinsic.Control.EndIf
+F.Intrinsic.Control.else
+	V.Passed.777777.Set(1)
+F.Intrinsic.Control.EndIf
+f.ODBC.Connection!con.Close
+V.Passed.777777.Set(1)
+
+Program.Sub.Main.End
+
+Program.Sub.Comments.Start
+${$0$}$GCG_GSS_PART_BROWSER$}$ERIC$}$3/10/2012
+Program.Sub.Comments.End
+
